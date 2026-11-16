@@ -171,14 +171,15 @@ function doGet() { return ContentService.createTextOutput('OK'); }
 // ---------- ఒక్కసారి రన్ చేయండి: షీట్లు + అడ్మిన్ మాత్రమే (నమూనా సభ్యులు లేరు) ----------
 function setup() {
   sh('members'); sh('posts'); credFind('x');
+  const old = credFind('9100308833'); if (old.i) old.s.deleteRow(old.i);
   const J = Date.now();
   put('members', 'SFM01', {
-    name: 'సిరిగినేడి అడ్మిన్', surname: 'సిరిగినేడి', gender: 'M', age: 40, phone: '9100308833',
+    name: 'సిరిగినేడి అడ్మిన్', surname: 'సిరిగినేడి', gender: 'M', age: 40, phone: '4056830968',
     father: 'సిరిగినేడి సుబ్బారావు', grandfather: 'సిరిగినేడి కృష్ణమూర్తి',
     village: 'నమూనా గ్రామం', mandal: 'నమూనా మండలం', admin: true, joined: J
   }, false);
-  // పాస్‌వర్డ్ 123456 యొక్క హ్యాష్ ("sfm|" + పాస్‌వర్డ్ యొక్క SHA-256)
-  credSet('9100308833', 'b0d57c19427665b4002a2b5727f830ee3d77e366f61824b4f912fd287a5282ea', 'మీ ఇంటి పేరు?',
+  // పాస్‌వర్డ్ 456789 యొక్క హ్యాష్ ("sfm|" + పాస్‌వర్డ్ యొక్క SHA-256)
+  credSet('4056830968', '08dabce2b43a6d41e868047105dd311d0b23de241ecdb521a4aec8b1feca1539', 'మీ ఇంటి పేరు?',
     hashOf('సిరిగినేడి'));
 }
 // ఇప్పటికే షీట్‌లో ఉన్న నమూనా సభ్యులను (sample=true) ఒక్కసారి రన్ చేసి తొలగించండి
