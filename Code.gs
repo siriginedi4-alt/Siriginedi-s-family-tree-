@@ -144,15 +144,16 @@ function act(p) {
       return { ok: true };
     }
     if (a === 'cred_set') {
-      if (credFind(p.phone).i) throw new Error('exists');
-      credSet(p.phone, p.pw, p.q, p.a);
+      // ఈ ఫోన్‌తో సభ్యుడు ఉంటేనే 'exists' (గతంలో సగం సేవ్ అయిన ఖాతాను మళ్ళీ రిజిస్టర్ చేయనిస్తుంది)
+      if (credFind(p.phone).i && phoneInMembers(p.phone)) throw new Error('exists');
+      credSet(p.phone, p.pw, p.q, p.ans);
       return { ok: true };
     }
     if (a === 'login') { const f = credFind(p.phone); return { ok: !!f.i && String(f.r[1]) === String(p.pw) }; }
     if (a === 'q') { const f = credFind(p.phone); return { q: f.i ? String(f.r[2]) : '' }; }
     if (a === 'reset') {
       const f = credFind(p.phone);
-      if (!f.i || String(f.r[3]) !== String(p.a)) return { ok: false };
+      if (!f.i || String(f.r[3]) !== String(p.ans)) return { ok: false };
       credSet(p.phone, p.pw, f.r[2], f.r[3]);
       return { ok: true };
     }
@@ -160,6 +161,12 @@ function act(p) {
   } finally {
     lock.releaseLock();
   }
+}
+function phoneInMembers(phone) {
+  const v = sh('members').getDataRange().getValues(), pi = v[0].indexOf('phone');
+  if (pi < 0) return false;
+  for (let i = 1; i < v.length; i++) if (String(v[i][pi]) === String(phone)) return true;
+  return false;
 }
 function doPost(e) {
   let r;
