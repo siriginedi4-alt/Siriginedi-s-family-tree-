@@ -179,7 +179,7 @@ async function doReg(){
     await db.collection('members').doc(id).set(d);
     uid=d.uid;try{localStorage.setItem(SKEY,id)}catch(x){}
     enter({...d,id});
-  }catch(x){e.textContent='సేవ్ కాలేదు. ఇంటర్నెట్ చూసి మళ్ళీ ప్రయత్నించండి.'}
+  }catch(x){console.error(x);const m=String(x&&x.message||x);e.textContent=m==='exists'?'ఈ ఫోన్ నంబర్ ఇప్పటికే రిజిస్టర్ అయింది.':'సేవ్ కాలేదు: '+m}
 }
 async function doLogin(){const e=$('l_err');e.textContent='';const ph=$('l_ph').value.trim(),m=members.find(x=>x.phone===ph);
   if(!m){e.textContent='ఈ నంబర్ రిజిస్టర్ కాలేదు.';return}
