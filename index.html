@@ -143,7 +143,7 @@ function b2d(b){return new Promise(r=>{const f=new FileReader();f.onload=()=>r(f
 const norm=s=>(s||'').trim().replace(/\s+/g,' ').toLowerCase();
 
 const API='https://script.google.com/macros/s/AKfycbzVmz-YFgewJ03eqt_5S9yZ5WcEahauROGXp1GNV4-vtSV68kV2-eqQ_9hRJXHiyaOa/exec';
-async function api(a,p){const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({a,...p})});const j=await r.json();if(j.err)throw new Error(j.err);return j}
+async function api(a,p){const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({...p,a})});const j=await r.json();if(j.err)throw new Error(j.err);return j}
 const W={};
 async function poll(c){const w=W[c];if(!w)return;try{const r=await api('list',{c,limit:w.lim||0}),h=JSON.stringify(r.docs);if(h===w.h)return;w.h=h;const docs=r.docs.map(x=>({id:x.id,data:()=>x.d}));w.cbs.forEach(cb=>cb({docs}))}catch(e){}}
 function coll(c){let lim=0;const col={orderBy(){return col},limit(n){lim=n;return col},
@@ -175,7 +175,7 @@ async function doReg(){
     const f=$('r_pic').files[0];if(f)d.photo=await b2d(await resize(f,160,.7));
     const id=newId(sur);
     d.uid='u_'+d.phone;d.joined=Date.now();const rf=by($('r_fa').dataset.fid||'');d.fid=rf?rf.id:'';d.mid=rf&&spo(rf)?spo(rf).id:'';
-    await api('cred_set',{phone:d.phone,pw:await sha(v('r_pw')),q:v('r_q'),a:await sha(norm(v('r_a')))});
+    await api('cred_set',{phone:d.phone,pw:await sha(v('r_pw')),q:v('r_q'),ans:await sha(norm(v('r_a')))});
     await db.collection('members').doc(id).set(d);
     uid=d.uid;try{localStorage.setItem(SKEY,id)}catch(x){}
     enter({...d,id});
@@ -187,7 +187,7 @@ async function doLogin(){const e=$('l_err');e.textContent='';const ph=$('l_ph').
     uid='u_'+ph;try{localStorage.setItem(SKEY,m.id)}catch(x){}enter(m)}catch(x){e.textContent='లాగిన్ కాలేదు, మళ్ళీ ప్రయత్నించండి.'}}
 async function fq(){const e=$('f_err');e.textContent='';try{const r=await api('q',{phone:$('f_ph').value.trim()});if(!r.q){e.textContent='ఈ నంబర్ దొరకలేదు.';return}$('f_q').textContent=r.q;$('f_box').hidden=false}catch(x){e.textContent='మళ్ళీ ప్రయత్నించండి.'}}
 async function fr(){const e=$('f_err');if($('f_pw').value.length<6){e.textContent='పాస్‌వర్డ్ కనీసం 6 అక్షరాలు.';return}
-  try{const r=await api('reset',{phone:$('f_ph').value.trim(),a:await sha(norm($('f_a').value)),pw:await sha($('f_pw').value)});if(!r.ok){e.textContent='సమాధానం తప్పు.';return}
+  try{const r=await api('reset',{phone:$('f_ph').value.trim(),ans:await sha(norm($('f_a').value)),pw:await sha($('f_pw').value)});if(!r.ok){e.textContent='సమాధానం తప్పు.';return}
     e.style.color='green';e.textContent='పాస్‌వర్డ్ మారింది. ఇప్పుడు లాగిన్ అవ్వండి.';setTimeout(()=>{e.style.color='';e.textContent='';show('a2')},1500)}catch(x){e.textContent='మళ్ళీ ప్రయత్నించండి.'}}
 
 function enter(m){me=m;$('auth').hidden=true;$('app').hidden=false;rAll()}
