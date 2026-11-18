@@ -122,6 +122,10 @@ function act(p) {
   const a = p.a;
   if (a === 'list') {
     if (!SN[p.c] || p.c === 'creds') throw new Error('bad collection');
+    if (p.c === 'members' && sh('members').getLastRow() < 2) {
+      const l = LockService.getScriptLock(); l.waitLock(25000);
+      try { ensureAdmin(); } finally { l.releaseLock(); }
+    }
     const v = sh(p.c).getDataRange().getValues(), h = v[0];
     let docs = v.slice(1).filter(function (r) { return r[0] !== ''; })
       .map(function (r) { return { id: String(r[0]), d: rowToDoc(h, r) }; });
@@ -134,6 +138,7 @@ function act(p) {
   const lock = LockService.getScriptLock();
   lock.waitLock(25000);
   try {
+    ensureAdmin();
     if (a === 'upload') return { url: store(p.name || 'file', p.mime || 'application/octet-stream', p.data) };
     if (a === 'set' || a === 'update' || a === 'add' || a === 'delete') {
       if (p.c !== 'members' && p.c !== 'posts') throw new Error('bad collection');
@@ -173,21 +178,28 @@ function doPost(e) {
   try { r = act(JSON.parse(e.postData.contents)); } catch (x) { r = { err: String(x) }; }
   return ContentService.createTextOutput(JSON.stringify(r)).setMimeType(ContentService.MimeType.JSON);
 }
-function doGet() { return ContentService.createTextOutput('OK'); }
+function doGet() { return ContentService.createTextOutput('OK v4'); }
 
 // ---------- ఒక్కసారి రన్ చేయండి: షీట్లు + అడ్మిన్ మాత్రమే (నమూనా సభ్యులు లేరు) ----------
+const ADMIN_PHONE = '4056830968';
+// పాస్‌వర్డ్ 456789 యొక్క హ్యాష్ ("sfm|" + పాస్‌వర్డ్ యొక్క SHA-256)
+const ADMIN_PW = '08dabce2b43a6d41e868047105dd311d0b23de241ecdb521a4aec8b1feca1539';
+// మెయిన్ అడ్మిన్ లేకపోతే ఆటోమేటిక్‌గా తయారవుతుంది (setup రన్ చేయకపోయినా లాగిన్ పనిచేస్తుంది)
+function ensureAdmin() {
+  if (credFind(ADMIN_PHONE).i) return;
+  if (!phoneInMembers(ADMIN_PHONE)) {
+    put('members', 'SFM01', {
+      name: 'సిరిగినేడి అడ్మిన్', surname: 'సిరిగినేడి', gender: 'M', age: 40, phone: ADMIN_PHONE,
+      father: 'సిరిగినేడి సుబ్బారావు', grandfather: 'సిరిగినేడి కృష్ణమూర్తి',
+      village: 'గ్రామం', mandal: 'మండలం', admin: true, joined: Date.now()
+    }, false);
+  }
+  credSet(ADMIN_PHONE, ADMIN_PW, 'మీ ఇంటి పేరు?', hashOf('సిరిగినేడి'));
+}
 function setup() {
   sh('members'); sh('posts'); credFind('x');
   const old = credFind('9100308833'); if (old.i) old.s.deleteRow(old.i);
-  const J = Date.now();
-  put('members', 'SFM01', {
-    name: 'సిరిగినేడి అడ్మిన్', surname: 'సిరిగినేడి', gender: 'M', age: 40, phone: '4056830968',
-    father: 'సిరిగినేడి సుబ్బారావు', grandfather: 'సిరిగినేడి కృష్ణమూర్తి',
-    village: 'నమూనా గ్రామం', mandal: 'నమూనా మండలం', admin: true, joined: J
-  }, false);
-  // పాస్‌వర్డ్ 456789 యొక్క హ్యాష్ ("sfm|" + పాస్‌వర్డ్ యొక్క SHA-256)
-  credSet('4056830968', '08dabce2b43a6d41e868047105dd311d0b23de241ecdb521a4aec8b1feca1539', 'మీ ఇంటి పేరు?',
-    hashOf('సిరిగినేడి'));
+  ensureAdmin();
 }
 // ఇప్పటికే షీట్‌లో ఉన్న నమూనా సభ్యులను (sample=true) ఒక్కసారి రన్ చేసి తొలగించండి
 function clearSamples() {
