@@ -53,6 +53,13 @@ nav button.on{color:#2dd4bf;border-color:#2dd4bf}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.g2 .btn{width:100%}.cp{display:inline-flex;align-items:center;gap:4px}.hb{color:var(--line)}
 .mod{position:fixed;inset:0;background:#0007;display:none;align-items:center;justify-content:center;z-index:40;padding:16px}.mod .card{max-width:380px;width:100%;max-height:90vh;overflow:auto}
 .big{width:96px;height:96px;font-size:2rem;margin:0 auto 8px;display:flex}
+
+#ld{position:fixed;inset:0;background:rgba(7,13,24,.65);z-index:9999;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:#fff;font-size:.95rem;backdrop-filter:blur(2px)}
+#ld .sp{width:46px;height:46px;border:5px solid rgba(255,255,255,.25);border-top-color:var(--pri,#2dd4bf);border-radius:50%;animation:spn .8s linear infinite}@keyframes spn{to{transform:rotate(360deg)}}
+.cp{position:relative}.cp::before{content:"";position:absolute;left:0;right:0;top:50%;border-top:2px solid var(--line)}
+.cp.hk::after{content:"";position:absolute;left:50%;top:50%;bottom:-2px;border-left:2px solid var(--line)}
+.cp .nd{width:132px;min-width:0;max-width:none;box-sizing:border-box;position:relative;z-index:1}
+.cp .hb{position:relative;z-index:1;background:var(--bg);border-radius:50%;padding:2px;margin:0 8px}
 </style>
 </head>
 <body>
@@ -143,7 +150,8 @@ function b2d(b){return new Promise(r=>{const f=new FileReader();f.onload=()=>r(f
 const norm=s=>(s||'').trim().replace(/\s+/g,' ').toLowerCase();
 
 const API='https://script.google.com/macros/s/AKfycbzVmz-YFgewJ03eqt_5S9yZ5WcEahauROGXp1GNV4-vtSV68kV2-eqQ_9hRJXHiyaOa/exec';
-async function api(a,p){const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({...p,a})});const j=await r.json();if(j.err)throw new Error(j.err);return j}
+let LD=0,LT;function ldShow(on){clearTimeout(LT);if(on){LD++;$('ld').style.display='flex'}else{LD=Math.max(0,LD-1);LT=setTimeout(()=>{if(!LD)$('ld').style.display='none'},200)}}
+async function api(a,p){const bg=a==='list';if(!bg)ldShow(1);try{const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({...p,a})});const j=await r.json();if(j.err)throw new Error(j.err);return j}finally{if(!bg)ldShow(0)}}
 const W={};
 async function poll(c){const w=W[c];if(!w)return;try{const r=await api('list',{c,limit:w.lim||0}),h=JSON.stringify(r.docs);if(h===w.h)return;w.h=h;const docs=r.docs.map(x=>({id:x.id,data:()=>x.d}));w.cbs.forEach(cb=>cb({docs}))}catch(e){}}
 function coll(c){let lim=0;const col={orderBy(){return col},limit(n){lim=n;return col},
@@ -342,8 +350,7 @@ function buildTree(){
 function nodeH(n,T,seen){
   if(seen.has(n))return'';seen.add(n);
   const card=(m,g)=>`<div class="nd${g?' g':''}"${m?` onclick="showM('${m.id}')" style="cursor:pointer"`:''}>${m?av(m):`<span class="av" style="background:var(--mut)">${ini(n.name)}</span>`}<b>${esc(m?m.name:n.name)}</b><i>${m?esc(m.id)+(gen(m)==='F'?' ♀':' ♂'):'—'}</i></div>`;
-  const s=n.m&&spo(n.m),cp=s&&T.pl(s)?`<div class="cp">${card(n.m,0)}<span class="hb">♥</span>${card(s,0)}</div>`:card(n.m,n.ghost);
-  const k=T.ch.get(n)||[];
+  const k=T.ch.get(n)||[],s=n.m&&spo(n.m),cp=s&&T.pl(s)?`<div class="cp${k.length?' hk':''}">${card(n.m,0)}<span class="hb">♥</span>${card(s,0)}</div>`:card(n.m,n.ghost);
   return `<li>${cp}${k.length?'<ul>'+k.map(c=>nodeH(c,T,seen)).join('')+'</ul>':''}</li>`}
 function rTree(){
   if(!members.length){$('tree').innerHTML='<p style="color:var(--mut)">సభ్యులు జాయిన్ అయ్యాక ట్రీ కనిపిస్తుంది.</p>';return}
@@ -359,5 +366,6 @@ async function exportCsv(){
   if(!dl){alert('డౌన్‌లోడ్ అందుబాటులో లేదు');return}
   try{await dl.save({filename:'siriginedi-family-members.csv',data:csv})}catch(e){}}
 </script>
+<div id="ld"><div class="sp"></div><div>దయచేసి వేచి ఉండండి…</div></div>
 </body>
 </html>
