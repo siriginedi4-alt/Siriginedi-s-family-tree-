@@ -56,14 +56,18 @@ nav button.on{color:#2dd4bf;border-color:#2dd4bf}
 
 #ld{position:fixed;inset:0;background:rgba(7,13,24,.65);z-index:9999;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:#fff;font-size:.95rem;backdrop-filter:blur(2px)}
 #ld .sp{width:46px;height:46px;border:5px solid rgba(255,255,255,.25);border-top-color:var(--pri,#2dd4bf);border-radius:50%;animation:spn .8s linear infinite}@keyframes spn{to{transform:rotate(360deg)}}
-.cp{position:relative}.cp::before{content:"";position:absolute;left:0;right:0;top:50%;border-top:2px solid var(--line)}
-.cp.hk::after{content:"";position:absolute;left:50%;top:50%;bottom:-2px;border-left:2px solid var(--line)}
-.cp .nd{width:132px;min-width:0;max-width:none;box-sizing:border-box;position:relative;z-index:1}
-.cp .hb{position:relative;z-index:1;background:var(--bg);border-radius:50%;padding:2px;margin:0 8px}
+.t li::before,.t li::after,.t ul::before{display:none!important}
+.t ul{padding-top:46px}.t li,.t li:only-child{padding:0 8px}.t>li{padding-top:0}
+.t li>ul{margin-top:0}.t li>.nd,.t li>.cp{margin-bottom:0}
+.nd{position:relative;z-index:1}
+.cp .nd{width:132px;min-width:0;max-width:none;box-sizing:border-box}
+.cp .hb{position:relative;z-index:1;background:var(--bg);border-radius:50%;padding:2px;margin:0 10px}
+.lgb{background:transparent;color:var(--tx);border:1px solid var(--pri);border-radius:16px;padding:3px 11px;font-size:.78rem;cursor:pointer;white-space:nowrap}
 </style>
 </head>
 <body>
 <div id="auth" class="wrap">
+  <div style="text-align:right"><button class="lgb" data-nt onclick="setLang()">English</button></div>
   <div class="hero">
     <svg width="96" height="96" viewBox="0 0 96 96" aria-label="లోగో"><circle cx="48" cy="48" r="45" fill="#0ea5a4"/><path d="M48 78V46M48 58L34 44M48 52L62 38M48 46V24" stroke="#fdf6ec" stroke-width="5" stroke-linecap="round" fill="none"/><circle cx="48" cy="22" r="7" fill="#2dd4bf"/><circle cx="33" cy="42" r="6" fill="#fdf6ec"/><circle cx="63" cy="36" r="6" fill="#fdf6ec"/><circle cx="48" cy="80" r="5" fill="#2dd4bf"/></svg>
     <h1>సిరిగినేడి వారి ఫ్యామిలీ</h1><p>మన కుటుంబం · మన బంధం</p>
@@ -116,7 +120,7 @@ nav button.on{color:#2dd4bf;border-color:#2dd4bf}
   <div class="top">
     <svg width="30" height="30" viewBox="0 0 96 96"><circle cx="48" cy="48" r="45" fill="#0ea5a4"/><path d="M48 78V46M48 58L34 44M48 52L62 38M48 46V24" stroke="#fdf6ec" stroke-width="6" stroke-linecap="round" fill="none"/><circle cx="48" cy="22" r="8" fill="#2dd4bf"/></svg>
     <h2>సిరిగినేడి వారి ఫ్యామిలీ</h2>
-    <button class="dots" onclick="tm(event)" aria-label="మెనూ">⋮</button>
+    <button class="lgb" data-nt onclick="setLang()">English</button><button class="dots" onclick="tm(event)" aria-label="మెనూ">⋮</button>
     <div class="menu" id="menu"><div onclick="showProfile()">👤 ప్రొఫైల్</div><div onclick="exportCsv()">⬇ సభ్యుల జాబితా (Sheets కోసం CSV)</div><div onclick="logout()">🚪 లాగ్ అవుట్</div></div>
   </div>
   <nav><button id="n_feed" class="on" onclick="tab('feed')">ఫీడ్</button><button id="n_tree" onclick="tab('tree')">ఫ్యామిలీ ట్రీ</button><button id="n_mem" onclick="tab('mem')">ఫ్యామిలీ మెంబర్స్</button></nav>
@@ -221,7 +225,7 @@ async function doPost(){
   b.disabled=false;b.textContent='పోస్ట్'}
 function rFeed(){
   $('feed').innerHTML=posts.length?posts.map(p=>{const m=members.find(x=>x.id===p.mid)||{name:'సభ్యుడు'};
-    return `<div class="card post"><div class="row">${av(m)}<div style="flex:1"><div class="n">${esc(m.name)} <small>${esc(m.id||'')}</small></div><small>${new Date(p.ts).toLocaleString('te-IN')}</small></div>${p.uid===uid||(me&&me.admin)?`<button class="dots" style="font-size:1rem" onclick="delPost('${p.pid}')">🗑</button>`:''}</div>
+    return `<div class="card post"><div class="row">${av(m)}<div style="flex:1"><div class="n">${esc(m.name)} <small>${esc(m.id||'')}</small></div><small>${new Date(p.ts).toLocaleString(LANG==='en'?'en-IN':'te-IN')}</small></div>${p.uid===uid||(me&&me.admin)?`<button class="dots" style="font-size:1rem" onclick="delPost('${p.pid}')">🗑</button>`:''}</div>
     ${p.text?`<p>${esc(p.text)}</p>`:''}${(p.media||[]).map(x=>x.t==='v'?`<iframe src="${esc(x.u)}" allow="autoplay" allowfullscreen style="width:100%;height:260px;border:0;border-radius:10px;margin-top:8px"></iframe>`:`<img src="${esc(x.u)}" alt="">`).join('')}</div>`}).join(''):'<p style="text-align:center;color:var(--mut)">ఇంకా పోస్టులు లేవు. మొదటి పోస్ట్ మీదే!</p>'}
 async function delPost(id){if(confirm('ఈ పోస్ట్ తొలగించాలా?'))try{await db.collection('posts').doc(id).delete()}catch(e){}}
 
@@ -328,7 +332,7 @@ function relGo(){const a=pick('rl_a'),b=pick('rl_b'),o=$('rl_r');
   if(!a||!b){o.innerHTML='<div class="err">ఇద్దరినీ జాబితా నుంచి ఎంచుకోండి లేదా సరైన పేరు/ID ఇవ్వండి.</div>';return}
   if(a===b){o.textContent='ఇద్దరూ ఒకే వ్యక్తి.';return}
   const G=graph(),r1=rel(G,a,b),r2=rel(G,b,a);
-  o.innerHTML=r1?`<div class="card"><b>${esc(b.name)}</b> (${esc(b.id)}), <b>${esc(a.name)}</b> కు <b style="color:var(--pri)">${esc(r1)}</b> అవుతారు.</div><div class="card"><b>${esc(a.name)}</b> (${esc(a.id)}), <b>${esc(b.name)}</b> కు <b style="color:var(--pri)">${esc(r2||'')}</b> అవుతారు.</div>`:'<div class="card">ఈ ఇద్దరి మధ్య సంబంధం ట్రీ లో ఇంకా నమోదు కాలేదు. ఇద్దరినీ కుటుంబ ట్రీ లో కలపండి.</div>'}
+  o.innerHTML=r1?`<div class="card">${relSent(b,a,r1)}</div><div class="card">${relSent(a,b,r2)}</div>`:'<div class="card">ఈ ఇద్దరి మధ్య సంబంధం ట్రీ లో ఇంకా నమోదు కాలేదు. ఇద్దరినీ కుటుంబ ట్రీ లో కలపండి.</div>'}
 /* Family tree: Siriginedi first; others only when related */
 function buildTree(){
   const same=(a,b)=>{a=norm(a);b=norm(b);return !!a&&!!b&&(a===b||a.endsWith(' '+b)||b.endsWith(' '+a))};
@@ -355,16 +359,136 @@ function nodeH(n,T,seen){
 function rTree(){
   if(!members.length){$('tree').innerHTML='<p style="color:var(--mut)">సభ్యులు జాయిన్ అయ్యాక ట్రీ కనిపిస్తుంది.</p>';return}
   const T=buildTree(),seen=new Set();
-  $('tree').innerHTML=T.roots.map(r=>`<ul class="t" style="--line:${famColor(r)}">${nodeH(r,T,seen)}</ul>`).join('')||'<p style="color:var(--mut)">ట్రీ ఖాళీగా ఉంది.</p>'}
+  $('tree').innerHTML=T.roots.map(r=>`<ul class="t" style="--line:${famColor(r)}">${nodeH(r,T,seen)}</ul>`).join('')||'<p style="color:var(--mut)">ట్రీ ఖాళీగా ఉంది.</p>';requestAnimationFrame(drawLines);setTimeout(drawLines,150);setTimeout(drawLines,600)}
 (()=>{const w=$('tw');let d=0,x,y,sl,st;w.addEventListener('mousedown',e=>{d=1;x=e.clientX;y=e.clientY;sl=w.scrollLeft;st=w.scrollTop;w.style.cursor='grabbing'});
 addEventListener('mouseup',()=>{d=0;w.style.cursor='grab'});addEventListener('mousemove',e=>{if(d){w.scrollLeft=sl-(e.clientX-x);w.scrollTop=st-(e.clientY-y)}})})();
 
 async function exportCsv(){
-  const h=['ID','పేరు','ఫోన్','తండ్రి','తాత','గ్రామం','మండలం'],q=v=>'"'+String(v||'').replace(/"/g,'""')+'"';
+  const h=(LANG==='en'?['ID','Name','Phone','Father','Grandfather','Village','Mandal']:['ID','పేరు','ఫోన్','తండ్రి','తాత','గ్రామం','మండలం']),q=v=>'"'+String(v||'').replace(/"/g,'""')+'"';
   const rows=[h,...members.sort((a,b)=>a.id.localeCompare(b.id)).map(m=>[m.id,m.name,m.phone,m.father,m.grandfather,m.village,m.mandal])];
   const csv='\uFEFF'+rows.map(r=>r.map(q).join(',')).join('\n');
   if(!dl){alert('డౌన్‌లోడ్ అందుబాటులో లేదు');return}
   try{await dl.save({filename:'siriginedi-family-members.csv',data:csv})}catch(e){}}
+/* ===== భాష / Language (తెలుగు · English) ===== */
+let LANG='te';try{LANG=localStorage.getItem('sfmLang')==='en'?'en':'te'}catch(e){}
+const nz=s=>String(s).replace(/[\u200c\u200d]/g,'');
+const EN0={
+'సిరిగినేడి ఫ్యామిలీ':'Siriginedi Family','లోగో':'Logo','సిరిగినేడి వారి ఫ్యామిలీ':'Siriginedi Family','మన కుటుంబం · మన బంధం':'Our family · Our bond',
+'రిజిస్టర్':'Register','లాగిన్':'Login','కొత్త ఖాతా':'New account','ఇంటి పేరు':'Surname','సిరిగినేడి (Siriginedi)':'Siriginedi','ఇతర…':'Other…','ఇంటి పేరు టైప్ చేయండి':'Type surname',
+'పేరు (ఇంటి పేరు లేకుండా)':'Name (without surname)','లింగం':'Gender','మగ':'Male','ఆడ':'Female','వయసు':'Age','ఫోన్ నంబర్':'Phone number',
+'తండ్రి పేరు (టైప్ చేస్తే సభ్యుల పేర్లు వస్తాయి)':"Father's name (type to see member suggestions)",'తండ్రి గారి తండ్రి (తాత) పేరు':"Father's father (grandfather) name",
+'గ్రామం':'Village','మండలం':'Mandal','పాస్‌వర్డ్':'Password','పాస్‌వర్డ్ మళ్ళీ':'Confirm password','సెక్యూరిటీ ప్రశ్న (పాస్‌వర్డ్ మర్చిపోతే)':'Security question (if you forget password)',
+'ఉదా: మీ చిన్ననాటి స్నేహితుడి పేరు?':"e.g. Your childhood friend's name?",'సెక్యూరిటీ ప్రశ్నకు సమాధానం':'Answer to security question','ప్రొఫైల్ ఫోటో':'Profile photo',
+'రిజిస్టర్ అవ్వండి':'Register','ఇప్పటికే ఖాతా ఉందా? లాగిన్':'Already have an account? Login','← వెనక్కి':'← Back','పాస్‌వర్డ్ మర్చిపోయారా?':'Forgot password?',
+'కొత్తగా రిజిస్టర్':'New registration','పాస్‌వర్డ్ రీసెట్':'Reset password','ప్రశ్న చూపించు':'Show question','కొత్త పాస్‌వర్డ్':'New password','రీసెట్ చేయి':'Reset','← లాగిన్':'← Login',
+'లోడ్ అవుతోంది…':'Loading…','మెనూ':'Menu','👤 ప్రొఫైల్':'👤 Profile','⬇ సభ్యుల జాబితా (Sheets కోసం CSV)':'⬇ Members list (CSV for Sheets)','🚪 లాగ్ అవుట్':'🚪 Log out',
+'ఫీడ్':'Feed','ఫ్యామిలీ ట్రీ':'Family Tree','ఫ్యామిలీ మెంబర్స్':'Family Members','మీ మనసులో మాట…':"What's on your mind…",'📷 ఫోటో / 🎥 వీడియో':'📷 Photo / 🎥 Video','పోస్ట్':'Post',
+'➕ మెంబర్ చేర్చు':'➕ Add member','🔗 సంబంధాలు':'🔗 Relationships',
+'ఒక్కో కుటుంబానికి ఒక్కో రంగు · సభ్యుని మీద క్లిక్ చేస్తే "చేర్చు / ఎడిట్" వస్తుంది · పైకి, క్రిందకు, ప్రక్కకు స్క్రోల్ చేయండి · చుక్కల గీత బోర్డర్ = ఇంకా రిజిస్టర్ కాని పెద్దలు':'Each family has its own color · Click a member to get "Add / Edit" · Scroll up, down and sideways · Dashed border = elders not yet registered',
+'🔍 పేరు / ID / గ్రామం వెతకండి':'🔍 Search name / ID / village',
+'ఇంకా పెట్టలేదు (index.html లో API విలువ మార్చండి).':'Not set up yet (change the API value in index.html).','అన్ని వివరాలు నింపండి.':'Please fill in all details.',
+'ఫోన్ నంబర్ 10 అంకెలు ఉండాలి.':'Phone number must be 10 digits.','పాస్‌వర్డ్ కనీసం 6 అక్షరాలు.':'Password must be at least 6 characters.','పాస్‌వర్డ్‌లు సరిపోలలేదు.':'Passwords do not match.',
+'ఈ ఫోన్ నంబర్ ఇప్పటికే రిజిస్టర్ అయింది.':'This phone number is already registered.','సేవ్ కాలేదు. ఇంటర్నెట్ చూసి మళ్ళీ ప్రయత్నించండి.':'Could not save. Check your internet and try again.',
+'ఈ నంబర్ రిజిస్టర్ కాలేదు.':'This number is not registered.','పాస్‌వర్డ్ తప్పు.':'Wrong password.','లాగిన్ కాలేదు, మళ్ళీ ప్రయత్నించండి.':'Login failed, please try again.','ఈ నంబర్ దొరకలేదు.':'This number was not found.',
+'మళ్ళీ ప్రయత్నించండి.':'Please try again.','సమాధానం తప్పు.':'Wrong answer.','పాస్‌వర్డ్ మారింది. ఇప్పుడు లాగిన్ అవ్వండి.':'Password changed. Please login now.',
+'వీడియో అప్‌లోడ్ అందుబాటులో లేదు':'Video upload is not available','వీడియో 15MB లోపు ఉండాలి':'Video must be under 15MB','పోస్ట్ కాలేదు. మళ్ళీ ప్రయత్నించండి.':'Could not post. Please try again.',
+'సభ్యుడు':'Member','ఇంకా పోస్టులు లేవు. మొదటి పోస్ట్ మీదే!':'No posts yet. Be the first to post!','ఈ పోస్ట్ తొలగించాలా?':'Delete this post?','సభ్యులు లేరు':'No members','మెయిన్ అడ్మిన్':'Main admin',
+'ఫోన్:':'Phone:','తండ్రి:':'Father:','తాత:':'Grandfather:','గ్రామం:':'Village:','మండలం:':'Mandal:','➕ ఫ్యామిలీ మెంబర్ చేర్చు':'➕ Add family member','✏ ఎడిట్':'✏ Edit','🗑 సభ్యుడిని తొలగించు':'🗑 Delete member',
+'మూసివేయి':'Close','ఈ సభ్యుడిని తొలగించాలా?':'Delete this member?','ఎవరిని చేర్చాలి?':'Whom do you want to add?','ఎడిట్':'Edit',
+'పేరు':'Name','ఫోన్':'Phone','ఫోన్ (ఐచ్ఛికం)':'Phone (optional)','వయసు (ఐచ్ఛికం)':'Age (optional)','ఫోటో':'Photo','సేవ్':'Save','రద్దు':'Cancel','చేర్చు':'Add',
+'ఇంటి పేరు, పేరు నింపండి.':'Enter surname and name.','ఫోన్ సరికాదు లేదా ఇప్పటికే ఉంది.':'Phone is invalid or already exists.','ఇప్పటికే జీవిత భాగస్వామి ఉన్నారు.':'A spouse already exists.',
+'ఇప్పటికే చేర్చబడి ఉన్నారు.':'Already added.','ముందు తండ్రి లేదా తల్లిని చేర్చండి.':'Please add the father or mother first.','సేవ్ కాలేదు, మళ్ళీ ప్రయత్నించండి.':'Could not save, please try again.','సేవ్ కాలేదు.':'Could not save.',
+'ఫోటో (మార్చాలనుకుంటే)':'Photo (if you want to change)','తాత పేరు':'Grandfather name','తండ్రి పేరు':"Father's name",
+'జాబితాలో తండ్రి పేరు సరిపోలకపోతే, కొత్త కుటుంబంగా సేవ్ అవుతుంది.':"If the father's name doesn't match the list, it will be saved as a new family.",
+'ఇంటి పేరు, పేరు, తండ్రి పేరు, గ్రామం, మండలం నింపండి.':'Enter surname, name, father name, village and mandal.',
+'ఇద్దరి పేరు లేదా ID ఇవ్వండి — వారు ఒకరికొకరు ఏమవుతారో చూపిస్తుంది.':'Enter two names or IDs — it shows how they are related.','మొదటి వ్యక్తి':'First person','రెండవ వ్యక్తి':'Second person','సంబంధం చూపించు':'Show relationship',
+'ఇద్దరినీ జాబితా నుంచి ఎంచుకోండి లేదా సరైన పేరు/ID ఇవ్వండి.':'Select both from the list or enter the correct name/ID.','ఇద్దరూ ఒకే వ్యక్తి.':'Both are the same person.',
+'ఈ ఇద్దరి మధ్య సంబంధం ట్రీ లో ఇంకా నమోదు కాలేదు. ఇద్దరినీ కుటుంబ ట్రీ లో కలపండి.':'The relationship between these two is not yet recorded in the tree. Please connect both in the family tree.',
+'సభ్యులు జాయిన్ అయ్యాక ట్రీ కనిపిస్తుంది.':'The tree will appear once members join.','ట్రీ ఖాళీగా ఉంది.':'The tree is empty.','డౌన్‌లోడ్ అందుబాటులో లేదు':'Download is not available','దయచేసి వేచి ఉండండి…':'Please wait…',
+/* బంధుత్వ పదాలు */
+'భార్య':'Wife','భర్త':'Husband','కుమారుడు':'Son','కుమార్తె':'Daughter','తండ్రి':'Father','తల్లి':'Mother','అన్నయ్య':'Elder brother','అక్క':'Elder sister','తమ్ముడు':'Younger brother','చెల్లి':'Younger sister',
+'అక్క/చెల్లి':'Sister','అన్నయ్య/తమ్ముడు':'Brother','కొడుకు':'Son','కూతురు':'Daughter','మనవడు':'Grandson','మనవరాలు':'Granddaughter','కూతురి కొడుకు':"daughter's son",'కూతురి కూతురు':"daughter's daughter",
+'ముని మనవడు':'Great-grandson','ముని మనవరాలు':'Great-granddaughter','తాత':'Paternal grandfather','నాన్నమ్మ':'Paternal grandmother','తాత (అమ్మ తరపు తాతయ్య)':'Maternal grandfather','అమ్మమ్మ':'Maternal grandmother',
+'ముత్తాత':'Great-grandfather','ముత్తవ్వ':'Great-grandmother','మేనల్లుడు':'Nephew','మేనకోడలు':'Niece','అన్నయ్య కొడుకు':"Elder brother's son",'తమ్ముడి కొడుకు':"Younger brother's son",'అన్న/తమ్ముడి కొడుకు':"Brother's son",
+'అన్నయ్య కూతురు':"Elder brother's daughter",'తమ్ముడి కూతురు':"Younger brother's daughter",'అన్న/తమ్ముడి కూతురు':"Brother's daughter",
+'పెదనాన్న':"Father's elder brother (Pedananna)",'చిన్నాన్న':"Father's younger brother (Chinnanna)",'పెదనాన్న/చిన్నాన్న':"Paternal uncle",'అత్త':"Paternal aunt (Atta)",'మేనమామ':'Maternal uncle (Menamama)',
+'పెద్దమ్మ':"Mother's elder sister (Peddamma)",'పిన్ని':"Mother's younger sister (Pinni)",'పెద్దమ్మ/పిన్ని':'Maternal aunt','వరుసకు':'by relation',
+'బావ (మేనత్త/మేనమామ కొడుకు)':"Cousin brother-in-law (Bava)",'మరదలు (మేనత్త/మేనమామ కూతురు)':"Cousin (Maradalu)",'వదిన (మేనత్త/మేనమామ కూతురు)':"Cousin (Vadina)",
+'మామయ్య (మామగారు)':'Father-in-law','అత్తయ్య (అత్తగారు)':'Mother-in-law','బావమరిది':"Brother-in-law (wife's brother)",'బావగారు':"Brother-in-law (husband's elder brother)",'మరిది':"Brother-in-law (husband's younger brother)",
+'బావగారు/మరిది':"Brother-in-law (husband's brother)",'వదిన':'Sister-in-law (Vadina)','మరదలు':'Sister-in-law (Maradalu)','మరదలు/వదిన':'Sister-in-law','వదిన/మరదలు':'Sister-in-law','ఆడపడుచు':"Sister-in-law (husband's sister)",
+'కోడలు':'Daughter-in-law','అల్లుడు':'Son-in-law','బావ':'Brother-in-law (Bava)','అత్త (మేనమామ భార్య)':"Aunt (maternal uncle's wife)",'మామయ్య (అత్త భర్త)':"Uncle (aunt's husband)",
+'పెద్దమ్మ':"Mother's elder sister (Peddamma)",'దూరపు బంధువు':'Distant relative'
+};
+const EN={};for(const k in EN0)EN[nz(k)]=EN0[k];
+const rxe=s=>s.replace(/[.*+?^${}()|[\]\\\/]/g,'\\$&');
+const PHRE=new RegExp('(^|[^\\u0C00-\\u0C7F])('+Object.keys(EN).filter(k=>k.length>1).sort((a,b)=>b.length-a.length).map(rxe).join('|')+')(?![\\u0C00-\\u0C7F])','g');
+const TV={'అ':'a','ఆ':'a','ఇ':'i','ఈ':'i','ఉ':'u','ఊ':'u','ఋ':'ri','ఎ':'e','ఏ':'e','ఐ':'ai','ఒ':'o','ఓ':'o','ఔ':'au'};
+const TM={'ా':'a','ి':'i','ీ':'i','ు':'u','ూ':'u','ృ':'ri','ె':'e','ే':'e','ై':'ai','ొ':'o','ో':'o','ౌ':'au'};
+const TC={'క':'k','ఖ':'kh','గ':'g','ఘ':'gh','ఙ':'ng','చ':'ch','ఛ':'chh','జ':'j','ఝ':'jh','ఞ':'ny','ట':'t','ఠ':'th','డ':'d','ఢ':'dh','ణ':'n','త':'t','థ':'th','ద':'d','ధ':'dh','న':'n','ప':'p','ఫ':'ph','బ':'b','భ':'bh','మ':'m','య':'y','ర':'r','ఱ':'r','ల':'l','ళ':'l','వ':'v','శ':'sh','ష':'sh','స':'s','హ':'h'};
+function tel2lat(w){w=w.replace(/శ్రీ/g,'స్రీ');const c=[...w];let o='';
+  for(let i=0;i<c.length;i++){const x=c[i],n=c[i+1];
+    if(TV[x]!==undefined)o+=TV[x];
+    else if(TC[x]!==undefined){o+=TC[x];if(n==='్')i++;else if(TM[n]!==undefined){o+=TM[n];i++}else o+='a'}
+    else if(x==='ం')o+=n&&'పఫబభమ'.includes(n)?'m':n&&TC[n]!==undefined?'n':'m';
+    else if(x==='ః')o+='h';else if(x==='ఁ')o+='n';else if(TM[x]!==undefined)o+=TM[x]}
+  o=o.replace(/ravu$/,'rao').replace(/shv/g,'shw');return o.charAt(0).toUpperCase()+o.slice(1)}
+const PAT=[
+ [/^(.+) చేర్చు$/,m=>'Add '+trs(m[1])],[/^(.+) కు$/,m=>'For '+trs(m[1])],[/^తండ్రి: (.*)$/,m=>'Father: '+trs(m[1])],
+ [/^సేవ్ కాలేదు: (.*)$/,m=>'Could not save: '+m[1]],
+ [/^(.+) \(వరుసకు\)$/,m=>trs(m[1])+' (by relation)'],[/^(.+) \(వరుస\)$/,m=>m[1].split(' యొక్క ').map(trs).join("'s ")+' (relation)'],
+ [/^(\d+) తరాల తరువాతి వారసుడు$/,m=>'Descendant '+m[1]+' generations down'],[/^(\d+) తరాల పైన పూర్వీకులు$/,m=>'Ancestor '+m[1]+' generations up'],
+ [/^దూరపు బంధువు \((\d+) తరాల పైన ఉమ్మడి పూర్వీకుడు\)$/,m=>'Distant relative (common ancestor '+m[1]+' generations up)']];
+function trs(s){s=String(s);const core=nz(s.trim());if(!/[\u0C00-\u0C7F]/.test(core))return s;
+  const lead=s.match(/^\s*/)[0],trail=s.match(/\s*$/)[0];let r=EN[core];
+  if(r===undefined){for(const p of PAT){const m=p[0].exec(core);if(m){r=p[1](m);break}}}
+  if(r===undefined){r=core.replace(PHRE,(m,a,b)=>a+EN[b]).replace(/[\u0C00-\u0C7F]+/g,tel2lat)}
+  return lead+r+trail}
+const trSkip=n=>{const p=n.parentElement;return !p||/^(SCRIPT|STYLE|TEXTAREA)$/.test(p.tagName)||!!p.closest('[data-nt],.post p')};
+function trText(n){if(trSkip(n))return;const v=n.nodeValue;
+  if(LANG==='en'){if(n.__t!==undefined&&v===n.__t)return;if(!/[\u0C00-\u0C7F]/.test(v))return;const r=trs(v);if(r!==v){n.__o=v;n.__t=r;n.nodeValue=r}}
+  else if(n.__o!==undefined){if(v===n.__t)n.nodeValue=n.__o;n.__o=n.__t=undefined}}
+const TA=['placeholder','title','aria-label'];
+function trAttr(el){if(!el.getAttribute||el.closest('[data-nt]'))return;el.__oa=el.__oa||{};el.__ta=el.__ta||{};
+  TA.forEach(a=>{if(!el.hasAttribute(a))return;const v=el.getAttribute(a);
+    if(LANG==='en'){if(v===el.__ta[a]||!/[\u0C00-\u0C7F]/.test(v))return;const r=trs(v);if(r!==v){el.__oa[a]=v;el.__ta[a]=r;el.setAttribute(a,r)}}
+    else if(el.__oa[a]!==undefined&&v===el.__ta[a]){el.setAttribute(a,el.__oa[a]);el.__oa[a]=el.__ta[a]=undefined}})}
+function trWalk(root){if(!root)return;if(root.nodeType===3){trText(root);return}if(root.nodeType!==1)return;
+  const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let n;while((n=w.nextNode()))trText(n);
+  if(root.matches&&root.matches('[placeholder],[title],[aria-label]'))trAttr(root);
+  root.querySelectorAll('[placeholder],[title],[aria-label]').forEach(trAttr)}
+new MutationObserver(ms=>{if(LANG!=='en')return;ms.forEach(m=>{if(m.type==='characterData')trText(m.target);else if(m.type==='attributes')trAttr(m.target);else m.addedNodes.forEach(trWalk)})})
+ .observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:TA});
+function setLang(){LANG=LANG==='en'?'te':'en';try{localStorage.setItem('sfmLang',LANG)}catch(e){}applyLang()}
+function applyLang(){document.documentElement.lang=LANG==='en'?'en':'te';document.title=LANG==='en'?'Siriginedi Family':'సిరిగినేడి ఫ్యామిలీ';
+  document.querySelectorAll('.lgb').forEach(b=>b.textContent=LANG==='en'?'తెలుగు':'English');
+  trWalk(document.body);try{if(typeof me!=='undefined'&&me)rAll()}catch(e){}}
+const _cf=window.confirm.bind(window),_al=window.alert.bind(window);
+window.confirm=s=>_cf(LANG==='en'?trs(s):s);window.alert=s=>_al(LANG==='en'?trs(s):s);
+const relSent=(b,a,r)=>LANG==='en'?`<b>${esc(b.name)}</b> (${esc(b.id)}) is <b>${esc(a.name)}</b>'s <b style="color:var(--pri)">${esc(r||'')}</b>.`
+ :`<b>${esc(b.name)}</b> (${esc(b.id)}), <b>${esc(a.name)}</b> కు <b style="color:var(--pri)">${esc(r||'')}</b> అవుతారు.`;
+/* ===== ట్రీ లైన్లు: ప్రతి జంట (♥) నుంచి వారి పిల్లల కార్డులకే నేరుగా ===== */
+function drawLines(){document.querySelectorAll('#tree ul.t').forEach(root=>{
+  const old=root.querySelector(':scope>svg.ln');if(old)old.remove();
+  const rb=root.getBoundingClientRect();if(!rb.width)return;
+  const col=getComputedStyle(root).getPropertyValue('--line').trim()||'#2dd4bf';
+  const P=e=>{const r=e.getBoundingClientRect();return{l:r.left-rb.left,r:r.right-rb.left,t:r.top-rb.top,b:r.bottom-rb.top,cx:(r.left+r.right)/2-rb.left,cy:(r.top+r.bottom)/2-rb.top}};
+  let d='';
+  root.querySelectorAll('.cp').forEach(cp=>{const c=cp.querySelectorAll(':scope>.nd');if(c.length===2){const A=P(c[0]),B=P(c[1]);d+=`M${A.r} ${A.cy}H${B.l}`}});
+  root.querySelectorAll('li').forEach(li=>{const ul=li.querySelector(':scope>ul');if(!ul)return;
+    const cp=li.querySelector(':scope>.cp'),src=cp?cp.querySelector(':scope>.hb'):li.querySelector(':scope>.nd');if(!src)return;
+    const S=P(src),base=P(cp||src);
+    const kids=[...ul.children].map(k=>k.querySelector(':scope>.nd,:scope>.cp>.nd')).filter(Boolean).map(P);if(!kids.length)return;
+    const my=Math.round((base.b+Math.min(...kids.map(k=>k.t)))/2),r=8;
+    kids.forEach(k=>{const dx=k.cx-S.cx;
+      if(Math.abs(dx)<1){d+=`M${S.cx} ${S.b}V${k.t}`;return}
+      const s=Math.sign(dx),q=Math.min(r,Math.abs(dx)/2);
+      d+=`M${S.cx} ${S.b}V${my-q}Q${S.cx} ${my} ${S.cx+s*q} ${my}H${k.cx-s*q}Q${k.cx} ${my} ${k.cx} ${my+q}V${k.t}`})});
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('class','ln');svg.setAttribute('width',rb.width);svg.setAttribute('height',rb.height);
+  svg.style.cssText='position:absolute;left:0;top:0;pointer-events:none;overflow:visible';
+  svg.innerHTML=`<path d="${d}" fill="none" stroke="${col}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
+  root.insertBefore(svg,root.firstChild)})}
+addEventListener('resize',()=>{if(!$('t_tree').hidden)drawLines()});
+applyLang();
 </script>
 <div id="ld"><div class="sp"></div><div>దయచేసి వేచి ఉండండి…</div></div>
 </body>
